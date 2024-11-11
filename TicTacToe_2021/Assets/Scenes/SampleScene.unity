@@ -365,8 +365,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tilePrefab: {fileID: 6550593245988748456, guid: ba73f77024ae1b849a4f83a8f8bfe216, type: 3}
   parentTransform: {fileID: 992449908}
-  gridWidth: 3
-  gridHeight: 3
+  gridWidth: 5
+  gridHeight: 5
   gameFieldWidth: 500
   gameFieldHeight: 500
   gridMultiplyer: 0
