@@ -53,6 +53,8 @@
 
 
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class PopulateField : MonoBehaviour
 {
@@ -64,9 +66,11 @@ public class PopulateField : MonoBehaviour
     [SerializeField] private float gameFieldHeight = 5f; // Height of the game field area
     [SerializeField] private float gridMultiplyer;       // Multyplier for tiles identation
     [SerializeField] private RectTransform rectTransform; // Get the renderer component attached to the GameObject
+    [SerializeField] private Button mainMenuButton; // Go to main menu button
 
     void Start()
     {
+        mainMenuButton.onClick.AddListener(MainMenu);
         GenerateGrid();
         rectTransform = GetComponent<RectTransform>();
 
@@ -76,6 +80,10 @@ public class PopulateField : MonoBehaviour
 
     private void GenerateGrid()
     {
+
+        gridWidth = GameManager.instance.squareMatrixSize;
+        gridHeight = gridWidth;
+
         if (gridWidth == 3)
         {
             gridMultiplyer = 2;
@@ -87,6 +95,10 @@ public class PopulateField : MonoBehaviour
         else if (gridWidth == 5)
         {
             gridMultiplyer = 8;
+        }
+        else if (gridWidth == 9)
+        {
+            gridMultiplyer = 20;
         }
 
         // Calculate the ideal size for each tile based on game field width and height
@@ -118,6 +130,16 @@ public class PopulateField : MonoBehaviour
             }
         }
     }
+
+    private void MainMenu()
+    {
+        SceneManager.LoadScene("MainMenu");
+    }
+
+
+
+
+
 }
 
 
