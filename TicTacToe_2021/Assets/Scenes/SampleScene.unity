@@ -159,8 +159,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -208.4, y: 1126.4}
-  m_SizeDelta: {x: 513.3, y: 100.9}
+  m_AnchoredPosition: {x: -418.99982, y: 1101.9}
+  m_SizeDelta: {x: 207.3, y: 154.7}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &192494745
 MonoBehaviour:
@@ -492,6 +492,7 @@ MonoBehaviour:
   gameFieldWidth: 500
   gameFieldHeight: 500
   gridMultiplyer: 0
+  tileSize: 0
   rectTransform: {fileID: 0}
   mainMenuButton: {fileID: 192494745}
 --- !u!1 &1096365412
