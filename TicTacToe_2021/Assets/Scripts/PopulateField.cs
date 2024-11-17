@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -7,14 +8,16 @@ public class PopulateField : MonoBehaviour
     [SerializeField] private GameObject tilePrefab;      // Prefab of the tile
     [SerializeField] public GameObject[,] gameField;
     [SerializeField] private Transform parentTransform;  // Parent transform to hold all tiles
-    [SerializeField] private int gridWidth = 3;          // Number of columns
-    [SerializeField] private int gridHeight = 3;         // Number of rows
+    [SerializeField] public int gridWidth = 3;           // Number of columns
+    [SerializeField] public int gridHeight = 3;          // Number of rows
+    [SerializeField] public int winCondition;            // Number of consecutive same tiles to win
     [SerializeField] private float gameFieldWidth = 5f;  // Width of the game field area
     [SerializeField] private float gameFieldHeight = 5f; // Height of the game field area
     [SerializeField] private float gridMultiplyer;       // Multyplier for tiles identation
     [SerializeField] private float tileSize;       
     [SerializeField] private RectTransform rectTransform; // Get the renderer component attached to the GameObject
     [SerializeField] private Button mainMenuButton; // Go to main menu button
+    [SerializeField] private LineRenderer lineRenderer;
 
     public GameObject[,] GameField
     {
@@ -43,7 +46,7 @@ public class PopulateField : MonoBehaviour
 
 
 
-    void Start()
+    public void Start()
     {
         mainMenuButton.onClick.AddListener(MainMenu);
         rectTransform = GetComponent<RectTransform>();
@@ -63,18 +66,22 @@ public class PopulateField : MonoBehaviour
         if (gridWidth == 3)
         {
             gridMultiplyer = 2;
+            winCondition = 3;
         }
         else if (gridWidth == 4)
         {
             gridMultiplyer = 5;
+            winCondition = 4;
         }
         else if (gridWidth == 5)
         {
             gridMultiplyer = 8;
+            winCondition = 4;
         }
         else if (gridWidth == 9)
         {
             gridMultiplyer = 20;
+            winCondition = 5;
         }
 
         // Calculate the ideal size for each tile based on game field width and height
@@ -128,48 +135,29 @@ public class PopulateField : MonoBehaviour
         return new Vector3(posX, posY, 0);
     }
 
-    public bool CheckWinCondition(int x, int y, string player)
-    {
-        // Check all directions: horizontal, vertical, diagonal 1, diagonal 2
-        return CheckDirection(x, y, player, 1, 0) ||  // Horizontal
-               CheckDirection(x, y, player, 0, 1) ||  // Vertical
-               CheckDirection(x, y, player, 1, 1) ||  // Diagonal top-left to bottom-right
-               CheckDirection(x, y, player, 1, -1);   // Diagonal bottom-left to top-right
-    }
 
-    private bool CheckDirection(int x, int y, string player, int dx, int dy)
+    public void HighlightWinningTiles(List<GameObject> winningTiles)
     {
-        int count = 1;
-        count += CountTiles(x, y, player, dx, dy);  // Check in the positive direction
-        count += CountTiles(x, y, player, -dx, -dy);  // Check in the negative direction
-
-        if(count == 3)
+        foreach (GameObject tile in winningTiles)
         {
-            Debug.Log("You win!");
-        } 
-
-
-        return count >= 3;  // Or change to 4, 5 based on desired grid size
-    }
-
-    private int CountTiles(int startX, int startY, string player, int dx, int dy)
-    {
-        int count = 0;
-        int x = startX + dx;
-        int y = startY + dy;
-
-        // Check within the grid bounds and match the player symbol
-        while (x >= 0 && x < gridWidth && y >= 0 && y < gridHeight &&
-               gameField[x, y] != null &&
-               gameField[x, y].GetComponent<MakeSquareRed>().player == player)
-        {
-            count++;
-            x += dx;
-            y += dy;
+            // Highlight the tile visually (e.g., change its color)
+            tile.GetComponent<SpriteRenderer>().color = Color.green;
         }
-
-        return count;
     }
+
+    public void DrawLine(Vector3 start, Vector3 end)
+    {
+        lineRenderer.SetPosition(0, new Vector3(start.x, start.y, 0));
+        lineRenderer.SetPosition(1, new Vector3(end.x, end.y, 0));
+    }
+    
+    //public void DrawLine(int startX, int startY, int endX, int endY)
+    //{
+    //    lineRenderer.SetPosition(0, new Vector3(startX, startY, 0));
+    //    lineRenderer.SetPosition(1, new Vector3(endX, endY, 0));
+    //}
+
+
 
 
 

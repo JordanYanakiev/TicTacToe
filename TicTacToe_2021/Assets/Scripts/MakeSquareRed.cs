@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class MakeSquareRed : MonoBehaviour
@@ -6,12 +7,20 @@ public class MakeSquareRed : MonoBehaviour
     public string player;
     public int xPos;
     public int yPos;
+    public List<int> xPositions;
+    public List<int> yPositions;
+    public List<GameObject> tilesInRow;
+    public Vector3 start;
+    public Vector3 end;
 
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        tilesInRow = new List<GameObject>();
+        xPositions = new List<int>();
+        yPositions = new List<int>();
         gameFieldPanel = GameObject.Find("GameFieldPanel");
     }
 
@@ -27,15 +36,17 @@ public class MakeSquareRed : MonoBehaviour
             this.gameObject.GetComponent<SpriteRenderer>().color = Color.green;
         }
 
-        PopulateField.instance.CheckWinCondition(xPos, yPos, player);
+        CheckIfWin();
 
         //Chech both diagonals for 5 consecutive tiles
-        CheckDiagonalRight();
-        CheckDiagonalLeft();
+        //CheckDiagonalRight();
+        //CheckDiagonalLeft();
     }
 
     private void CheckDiagonalRight()
     {
+        xPositions.Clear();
+        yPositions.Clear();
         GameObject tile = gameFieldPanel.GetComponent<PopulateField>().GameField[4, 0];
         tile.GetComponent<SpriteRenderer>().color = Color.cyan;
         GameObject temp = null;
@@ -43,6 +54,8 @@ public class MakeSquareRed : MonoBehaviour
         int xStart = x;
         int y = 0;
         int yStart = y;
+        xPositions.Add(x);
+        yPositions.Add(y);
 
         while (x <= 8)
         {
@@ -52,6 +65,37 @@ public class MakeSquareRed : MonoBehaviour
                 temp.GetComponent<SpriteRenderer>().color = Color.cyan;
                 if (temp.tag == "Player")
                     temp.GetComponent<SpriteRenderer>().color = Color.yellow;
+
+                if (tile.tag == temp.tag && temp.tag == "Player")
+                {
+                    xPositions.Add(x);
+                    yPositions.Add(y);
+                    if (xPositions.Count == 5)
+                    {
+                        Debug.Log("YOU WON!");
+                        xPositions.Clear();
+                        yPositions.Clear();
+                    }
+                    tile = temp;
+                }
+                else if (tile.tag != temp.tag)
+                {
+                    xPositions.Clear();
+                    yPositions.Clear();
+                    tile = temp;
+                }
+
+                if (xPositions.Count == 5)
+                {
+                    Debug.Log("YOU WON!");
+                    xPositions.Clear();
+                    yPositions.Clear();
+                }
+                else if (xPositions.Count != 5)
+                {
+                    xPositions.Clear();
+                    yPositions.Clear();
+                }
                 //Debug.Log(x + " " + y);
                 x--;
                 y++;
@@ -140,4 +184,124 @@ public class MakeSquareRed : MonoBehaviour
         }
     }
 
+
+    private void CheckIfWin()
+    {
+        int x = 0;
+        int y = 0;
+        
+        for(int i = 0; i < PopulateField.instance.gridHeight; i++)
+        {
+            CountTiles(x, i, 1, 0, Color.yellow);
+        }
+
+        // Vertical
+        for (int j = 0; j < PopulateField.instance.gridHeight; j++)
+        {
+            CountTiles(j, y, 0, 1, Color.green);
+        }
+
+        // Diagonal top-left to bottom-right
+        for (int k = 0; k < PopulateField.instance.gridHeight; k++)
+        {
+            CountTiles(k, y, 1, 1, Color.blue);
+        }
+
+        // Diagonal top-left to bottom-right
+        for (int l = 0; l < PopulateField.instance.gridHeight; l++)
+        {
+            CountTiles(0, l, 1, 1, Color.blue);
+        }
+
+        // Diagonal bottom-left to top-right
+        for (int m = 0; m < PopulateField.instance.gridHeight; m++)
+        {
+            CountTiles(m, PopulateField.instance.gridHeight - 1, 1, -1, Color.cyan);
+        }
+        
+        // Diagonal bottom-left to top-right
+        for (int n = 0; n < PopulateField.instance.gridHeight; n++)
+        {
+            CountTiles(0, PopulateField.instance.gridHeight - (1 + n), 1, -1, Color.cyan);
+        }
+
+
+
+    }
+
+    private void CountTiles(int startX, int startY, int dx, int dy, Color color)
+    {
+        int count = 0;
+        int x = startX /*+ dx*/;
+        int y = startY /*+ dy*/;
+
+        while (x >= 0 && x < PopulateField.instance.gridWidth && y >= 0 && y < PopulateField.instance.gridHeight /*&&*/
+               //PopulateField.instance.gameField[x, y] != null &&
+               //PopulateField.instance.gameField[x, y].CompareTag("Player") /*&&
+               /*gameField[x, y].GetComponent<MakeSquareRed>().gameObject.tag == player*/)
+        {
+            GameObject temp = gameFieldPanel.GetComponent<PopulateField>().GameField[x, y];
+            temp.GetComponent<SpriteRenderer>().color = color;
+
+            tilesInRow.Add(temp);
+
+            count++;
+            x += dx;
+            y += dy;
+        }
+
+        int counter = 0;
+        int lineStartX = 0;
+        int lineStartY = 0;
+        int lineEndX = 0;
+        int lineEndY = 0;
+
+        foreach(GameObject tile in tilesInRow)
+        {
+            if (tile.tag == "Player")
+            {
+                tile.GetComponent<SpriteRenderer>().color = Color.red;
+                counter++;
+                if(counter == 1)
+                {
+                    //lineStartX = (int)tile.GetComponent<Transform>().position.x;
+                    //lineStartY = (int)tile.GetComponent<Transform>().position.y;
+
+                    start = tile.transform.position;
+                    string[] name = tile.name.Split(' ');
+                    lineStartX = (int)start.x;
+                    lineStartY = (int)start.y;
+
+
+                }
+                else if (counter > 1)
+                {
+                    //lineEndX = (int)tile.GetComponent<Transform>().position.x;
+                    //lineEndY = (int)tile.GetComponent<Transform>().position.y;
+
+                    end = tile.transform.position;
+                    string[] name = tile.name.Split(' ');
+                    lineEndX = (int)end.x;
+                    lineEndY = (int)end.y;
+
+                    Debug.Log(lineEndX + lineEndY);
+                }
+            }
+            else if (tile.tag != "Player")
+            {
+                counter = 0;
+            }
+
+            if (counter == PopulateField.instance.winCondition)
+            {
+                Debug.Log("Player WON!");
+                PopulateField.instance.DrawLine(start, end);
+                //PopulateField.instance.DrawLine(lineStartX, lineStartY, lineEndX, lineEndY);
+            }
+        }
+
+        
+    }
+
+   
 }
