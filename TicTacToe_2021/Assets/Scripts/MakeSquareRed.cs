@@ -190,6 +190,7 @@ public class MakeSquareRed : MonoBehaviour
         int x = 0;
         int y = 0;
         
+        // Horizontal
         for(int i = 0; i < PopulateField.instance.gridHeight; i++)
         {
             CountTiles(x, i, 1, 0, Color.yellow);
@@ -234,6 +235,8 @@ public class MakeSquareRed : MonoBehaviour
         int count = 0;
         int x = startX /*+ dx*/;
         int y = startY /*+ dy*/;
+        start = new Vector3(0, 0, 0);
+        end = new Vector3(0, 0, 0);
 
         while (x >= 0 && x < PopulateField.instance.gridWidth && y >= 0 && y < PopulateField.instance.gridHeight /*&&*/
                //PopulateField.instance.gameField[x, y] != null &&
@@ -251,10 +254,6 @@ public class MakeSquareRed : MonoBehaviour
         }
 
         int counter = 0;
-        int lineStartX = 0;
-        int lineStartY = 0;
-        int lineEndX = 0;
-        int lineEndY = 0;
 
         foreach(GameObject tile in tilesInRow)
         {
@@ -264,27 +263,17 @@ public class MakeSquareRed : MonoBehaviour
                 counter++;
                 if(counter == 1)
                 {
-                    //lineStartX = (int)tile.GetComponent<Transform>().position.x;
-                    //lineStartY = (int)tile.GetComponent<Transform>().position.y;
-
                     start = tile.transform.position;
-                    string[] name = tile.name.Split(' ');
-                    lineStartX = (int)start.x;
-                    lineStartY = (int)start.y;
-
-
                 }
                 else if (counter > 1)
                 {
-                    //lineEndX = (int)tile.GetComponent<Transform>().position.x;
-                    //lineEndY = (int)tile.GetComponent<Transform>().position.y;
-
                     end = tile.transform.position;
-                    string[] name = tile.name.Split(' ');
-                    lineEndX = (int)end.x;
-                    lineEndY = (int)end.y;
+                }
 
-                    Debug.Log(lineEndX + lineEndY);
+                if (counter == PopulateField.instance.winCondition)
+                {
+                    Debug.Log("Player WON!");
+                    PopulateField.instance.DrawLine(start, end);
                 }
             }
             else if (tile.tag != "Player")
@@ -292,14 +281,10 @@ public class MakeSquareRed : MonoBehaviour
                 counter = 0;
             }
 
-            if (counter == PopulateField.instance.winCondition)
-            {
-                Debug.Log("Player WON!");
-                PopulateField.instance.DrawLine(start, end);
-                //PopulateField.instance.DrawLine(lineStartX, lineStartY, lineEndX, lineEndY);
-            }
+            
         }
 
+        tilesInRow.Clear();
         
     }
 
