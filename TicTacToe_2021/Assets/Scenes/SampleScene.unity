@@ -498,6 +498,9 @@ MonoBehaviour:
   rectTransform: {fileID: 0}
   mainMenuButton: {fileID: 192494745}
   lineRenderer: {fileID: 992449912}
+  emptyImage: {fileID: 21300000, guid: 03038019238b560499eba2fe91de94b5, type: 3}
+  player1Image: {fileID: 21300000, guid: b415eda23b5fd9746bf41c65cc6fb24d, type: 3}
+  player2Image: {fileID: 21300000, guid: 9a7047c50a804f24c94aa34c8f4b721d, type: 3}
 --- !u!120 &992449912
 LineRenderer:
   m_ObjectHideFlags: 0

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class MainMwnuButtonsManager : MonoBehaviour
+public class MainMenuButtonsManager : MonoBehaviour
 {
     [SerializeField] private Button x3Button;
     [SerializeField] private Button x4Button;

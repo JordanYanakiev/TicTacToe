@@ -36,28 +36,35 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager instance; // Singleton instance for global access
+    //public static GameManager instance; // Singleton instance for global access
 
     [SerializeField] private string playerX = "X"; // Player X identifier
     [SerializeField] private string playerO = "O"; // Player O identifier
+    public bool isPvP;                  // Check if the game is Player vs AI or PvP
     public string currentPlayer; // Keeps track of whose turn it is
 
     [SerializeField] private PopulateField populateField; // Reference to PopulateField script
     public int squareMatrixSize = 3; // Size of the grid (e.g., 3x3, 4x4, etc.)
 
+    public static GameManager _instance;
+
+    public static GameManager instance
+    {
+        get
+        {
+            if(_instance == null)
+            {
+                _instance = FindObjectOfType(typeof(GameManager)) as GameManager;
+            }
+            return _instance;
+        }
+        set { _instance = value; }
+    }
+
+
     private void Awake()
     {
-        // Ensure there's only one instance of GameManager
-        if (instance == null)
-        {
-            instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-
-        DontDestroyOnLoad(gameObject); // Optional: Persist GameManager across scenes
+        DontDestroyOnLoad(this.gameObject); // Optional: Persist GameManager across scenes
     }
 
     private void Start()
@@ -97,14 +104,15 @@ public class GameManager : MonoBehaviour
         // Reset the grid and start a new game
         currentPlayer = playerX;
 
-        if (populateField != null)
-        {
-            foreach (Transform child in populateField.transform)
-            {
-                Destroy(child.gameObject);
-            }
+        // Regenerate the grid
+        PopulateField.instance.GenerateGrid(); 
 
-            populateField.Start(); // Regenerate the grid
-        }
+        //if (populateField != null)
+        //{
+        //    foreach (Transform child in populateField.transform)
+        //    {
+        //        Destroy(child.gameObject);
+        //    }
+        //}
     }
 }

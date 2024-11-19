@@ -18,6 +18,9 @@ public class PopulateField : MonoBehaviour
     [SerializeField] private RectTransform rectTransform; // Get the renderer component attached to the GameObject
     [SerializeField] private Button mainMenuButton; // Go to main menu button
     [SerializeField] private LineRenderer lineRenderer;
+    [SerializeField] private Sprite emptyImage;
+    [SerializeField] public Sprite player1Image;
+    [SerializeField] public Sprite player2Image;
 
     public GameObject[,] GameField
     {
@@ -57,7 +60,7 @@ public class PopulateField : MonoBehaviour
         GenerateGrid();
     }
 
-    private void GenerateGrid()
+    public void GenerateGrid()
     {
 
         gridWidth = GameManager.instance.squareMatrixSize;
@@ -112,6 +115,8 @@ public class PopulateField : MonoBehaviour
                 tile.transform.localScale = new Vector3(tileSize, tileSize, 1);
                 tile.GetComponent<MakeSquareRed>().xPos = x;
                 tile.GetComponent<MakeSquareRed>().yPos = y;
+                tile.GetComponent<SpriteRenderer>().sprite = emptyImage;
+                tile.tag = "Untagged";
                 tile.name = "" + x + " " + y;
                 gameField[x, y] = tile;
             }
