@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -17,10 +18,22 @@ public class PopulateField : MonoBehaviour
     [SerializeField] private float tileSize;       
     [SerializeField] private RectTransform rectTransform; // Get the renderer component attached to the GameObject
     [SerializeField] private Button mainMenuButton; // Go to main menu button
+    [SerializeField] private Button restartButton; // Go to main menu button
     [SerializeField] private LineRenderer lineRenderer;
     [SerializeField] private Sprite emptyImage;
     [SerializeField] public Sprite player1Image;
     [SerializeField] public Sprite player2Image;
+    [SerializeField] private GameObject gameOverPanel;
+    [SerializeField] private GameObject gameFieldPanel;
+
+
+
+    public GameObject GameOverPanel
+    {
+        get { return gameOverPanel; }
+        set { gameOverPanel = value; }
+    }
+
 
     public GameObject[,] GameField
     {
@@ -46,12 +59,10 @@ public class PopulateField : MonoBehaviour
         }
     }
 
-
-
-
     public void Start()
     {
         mainMenuButton.onClick.AddListener(MainMenu);
+        restartButton.onClick.AddListener(RestartLevel);
         rectTransform = GetComponent<RectTransform>();
 
         gameFieldWidth = rectTransform.rect.width;
@@ -62,7 +73,6 @@ public class PopulateField : MonoBehaviour
 
     public void GenerateGrid()
     {
-
         gridWidth = GameManager.instance.squareMatrixSize;
         gridHeight = gridWidth;
 
@@ -152,20 +162,27 @@ public class PopulateField : MonoBehaviour
 
     public void DrawLine(Vector3 start, Vector3 end)
     {
-        lineRenderer.SetPosition(0, new Vector3(start.x, start.y, 0));
-        lineRenderer.SetPosition(1, new Vector3(end.x, end.y, 0));
+        lineRenderer.positionCount = 2;
+        lineRenderer.SetPosition(0, new Vector3(start.x, start.y, 85));
+        lineRenderer.SetPosition(1, new Vector3(end.x, end.y, 85));
     }
     
-    //public void DrawLine(int startX, int startY, int endX, int endY)
-    //{
-    //    lineRenderer.SetPosition(0, new Vector3(startX, startY, 0));
-    //    lineRenderer.SetPosition(1, new Vector3(endX, endY, 0));
-    //}
 
+    public void RestartLevel()
+    {
+        lineRenderer.positionCount = 0;
+        Array.Clear(gameField, 0, gameField.Length);
 
+        // Iterate through all children
+        foreach (Transform child in gameFieldPanel.transform)
+        {
+            Destroy(child.gameObject); // Destroy each game tile
+        }
 
+        Start();
 
-
+        gameOverPanel.SetActive(false);
+    }
 }
 
 

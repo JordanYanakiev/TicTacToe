@@ -1,37 +1,3 @@
-//using System.Collections;
-//using System.Collections.Generic;
-//using UnityEngine;
-
-//public class GameManager : MonoBehaviour
-//{
-//    [SerializeField] public int squareMatrixSize;
-
-//    #region SINGLETON
-//    public static GameManager _instance;
-//    public static GameManager instance
-//    {
-//        get
-//        {
-//            if(_instance == null)
-//            {
-//                _instance = FindObjectOfType(typeof(GameManager)) as GameManager;
-//            }
-//            return _instance;
-//        }
-//        set { _instance = value; }
-//    }
-//    #endregion
-
-//    // Start is called before the first frame update
-//    void Start()
-//    {
-//        DontDestroyOnLoad(transform.gameObject);
-//    }
-//}
-
-
-
-
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -42,9 +8,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private string playerO = "O"; // Player O identifier
     public bool isPvP;                  // Check if the game is Player vs AI or PvP
     public string currentPlayer; // Keeps track of whose turn it is
-
     [SerializeField] private PopulateField populateField; // Reference to PopulateField script
     public int squareMatrixSize = 3; // Size of the grid (e.g., 3x3, 4x4, etc.)
+
 
     public static GameManager _instance;
 
@@ -87,11 +53,12 @@ public class GameManager : MonoBehaviour
     public void EndGame(string winner)
     {
         Debug.Log($"{winner} wins the game!");
+        PopulateField.instance.GameOverPanel.SetActive(true);
 
         // Optional: Display a UI message or restart the game
         // Example: Show win screen or restart the game
         // UIManager.instance.ShowWinScreen(winner);
-        RestartGame();
+        //RestartGame();
     }
 
     /// <summary>

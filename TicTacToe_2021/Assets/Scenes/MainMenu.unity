@@ -440,6 +440,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5028bc5f031e6542aabaeb0dc471d4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerX: X
+  playerO: O
+  isPvP: 0
+  currentPlayer: 
+  gameOverPanel: {fileID: 8927682581925515420, guid: 225e982bb9faf8745b1eca2dfc139d67, type: 3}
+  populateField: {fileID: 0}
   squareMatrixSize: 0
 --- !u!4 &426735603
 Transform:

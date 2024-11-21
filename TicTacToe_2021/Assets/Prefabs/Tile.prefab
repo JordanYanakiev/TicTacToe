@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 6550593245988748458}
   - component: {fileID: 6550593245988748459}
   - component: {fileID: 3896156572387333462}
-  - component: {fileID: 8314856321017695396}
   - component: {fileID: 3021976131003565490}
   m_Layer: 0
   m_Name: Tile
@@ -106,18 +105,8 @@ MonoBehaviour:
   xPositions: 
   yPositions: 
   tilesInRow: []
---- !u!114 &8314856321017695396
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6550593245988748456}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ee506cb007a8c8443b0e99d90c0a731e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  start: {x: 0, y: 0, z: 0}
+  end: {x: 0, y: 0, z: 0}
 --- !u!61 &3021976131003565490
 BoxCollider2D:
   m_ObjectHideFlags: 0
