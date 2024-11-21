@@ -30,15 +30,19 @@ public class MainMenuButtonsManager : MonoBehaviour
         {
             case "3x3Button":
                 gridSize = 3;
+                GameManager.instance.IsMultiplayerGame = true;
                 break;
             case "4x4Button":
                 gridSize = 4;
+                GameManager.instance.IsMultiplayerGame = true;
                 break;
             case "5x5Button":
                 gridSize = 5;
+                GameManager.instance.IsMultiplayerGame = true;
                 break;
             case "9x9Button":
                 gridSize = 9;
+                GameManager.instance.IsMultiplayerGame = false;
                 break;
         }
         GameManager.instance.squareMatrixSize = gridSize;
