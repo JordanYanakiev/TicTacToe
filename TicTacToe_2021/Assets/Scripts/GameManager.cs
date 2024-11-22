@@ -59,7 +59,7 @@ public class GameManager : MonoBehaviour
         Debug.Log($"{winner} wins the game!");
         PopulateField.instance.GameOverPanel.SetActive(true);
 
-        // Optional: Display a UI message or restart the game
+        // To do: Display a UI message or restart the game
         // Example: Show win screen or restart the game
         // UIManager.instance.ShowWinScreen(winner);
         //RestartGame();

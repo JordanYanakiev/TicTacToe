@@ -31,6 +31,10 @@ public class MakeSquareRed : MonoBehaviour
             //this.gameObject.GetComponent<SpriteRenderer>().color = Color.red;
             this.gameObject.GetComponent<SpriteRenderer>().sprite = PopulateField.instance.player1Image;
             this.gameObject.tag = "Player1";
+
+            //Chech all directions for 5 consecutive tiles
+            CheckIfWin("Player1");
+
             GameManager.instance.SwitchPlayer(); 
             
             if (!GameManager.instance.IsMultiplayerGame)
@@ -47,17 +51,17 @@ public class MakeSquareRed : MonoBehaviour
             { 
             this.gameObject.GetComponent<SpriteRenderer>().sprite = PopulateField.instance.player2Image;
             this.gameObject.tag = "Player2";
+            //Chech all directions for 5 consecutive tiles
+            CheckIfWin("Player2");
             GameManager.instance.SwitchPlayer();
             }
         }
 
-        //Chech all directions for 5 consecutive tiles
-        CheckIfWin();
     }
 
-    private void CheckIfWin()
+    private void CheckIfWin(string playerTag)
     {
-        string playerTag = this.gameObject.tag;
+         //= this.gameObject.tag;
         int x = 0;
         int y = 0;
         
@@ -97,9 +101,9 @@ public class MakeSquareRed : MonoBehaviour
             CountTiles(0, PopulateField.instance.gridHeight - (1 + n), 1, -1, Color.cyan, playerTag);
         }
     }
-    private bool CheckIfWin2()
+    private bool CheckIfWin2(string playerTag)
     {
-        string playerTag = this.gameObject.tag;
+        //string playerTag = this.gameObject.tag;
         int x = 0;
         int y = 0;
         bool aiWins = false;
@@ -183,6 +187,7 @@ public class MakeSquareRed : MonoBehaviour
                     Debug.Log("Player WON!");
                     PopulateField.instance.DrawLine(start, end);
                     GameManager.instance.EndGame(playerTag);
+                    return;
                 }
             }
             else if (tile.tag != "Player")
@@ -191,6 +196,7 @@ public class MakeSquareRed : MonoBehaviour
             }
         }
         tilesInRow.Clear();
+        return;
     }
     private bool CountTiles2(int startX, int startY, int dx, int dy, Color color, string playerTag)
     {
@@ -286,17 +292,33 @@ public class MakeSquareRed : MonoBehaviour
                 string originalTag = tile.tag;
                 tile.tag = targetTag;
 
-                CheckIfWin();
+                bool playerWins = false;
+                bool aiWins = false;
 
-
-                if (CheckWinCondition(targetTag, x, y, neededInRow))
+                if (targetTag == "Player1") 
+                { 
+                    playerWins = CheckIfWin2(targetTag); 
+                }
+                else if (targetTag == "Player2" && GameManager.instance.IsMultiplayerGame)
                 {
-                    PlaceTileAsAI(tile);
-                    return true;
+                    aiWins = CheckIfWin2(targetTag);
                 }
 
+
+                if (playerWins)
+                {
+                    
+                    PlaceTileAsAI(tile);
+                    return true;
+                    
+                }
+                else
+                {
                 // Revert the tag after checking
                 tile.tag = originalTag;
+
+                }
+
             }
         }
 
@@ -355,7 +377,7 @@ public class MakeSquareRed : MonoBehaviour
                 if (tile.tag == playerTag)
                 {
                     count++;
-                    if (count > neededInRow) return true;
+                    if (count >= neededInRow) return true;
                 }
                 else
                 {
@@ -371,7 +393,7 @@ public class MakeSquareRed : MonoBehaviour
     {
         tile.GetComponent<SpriteRenderer>().sprite = PopulateField.instance.player2Image;
         tile.tag = "Player2";
-        CheckIfWin();
+        CheckIfWin("Player2");
         GameManager.instance.SwitchPlayer();
     }
 
