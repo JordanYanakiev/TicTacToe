@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -69,7 +70,37 @@ public class PopulateField : MonoBehaviour
         gameFieldHeight = rectTransform.rect.height;
         gameField = new GameObject[(int)gameFieldWidth, (int)gameFieldHeight];
         GenerateGrid();
+        StartCoroutine(RestartLevelOnDraw());
     }
+
+
+    private IEnumerator RestartLevelOnDraw()
+    {
+        bool isHavingNoEmptySpots = false;
+        int counter = 0;
+        while (true)
+        {
+            for(int i = 0; i < gameField.Length; i++)
+            {
+                for (int j = 0; j < gameField.Length; j++)
+                {
+                    if (gameField[i,j].tag != "Untagged")
+                    {
+                        counter++;
+                    }
+
+                    if (counter == gameField.Length * gameField.Length)
+                    {
+                        RestartLevel();
+                    }
+                }
+            }
+            counter = 0;
+            yield return new WaitForSeconds(.0000001f);
+        }
+    }
+
+
 
     public void GenerateGrid()
     {
@@ -180,6 +211,7 @@ public class PopulateField : MonoBehaviour
         }
 
         Start();
+        GameManager.instance.currentPlayer = GameManager.instance.PlayerX;
 
         gameOverPanel.SetActive(false);
     }

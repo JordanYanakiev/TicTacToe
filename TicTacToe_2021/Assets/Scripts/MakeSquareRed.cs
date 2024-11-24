@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class MakeSquareRed : MonoBehaviour
@@ -12,6 +13,12 @@ public class MakeSquareRed : MonoBehaviour
     public List<GameObject> tilesInRow;
     public Vector3 start;
     public Vector3 end;
+    private bool isTryingToPlay;
+    private bool isTryingToBlockOponent;
+    [SerializeField] int enemyPriority;
+    [SerializeField] int aiPriority;
+    [SerializeField] string startTileName;
+    [SerializeField] string endTileName;
 
 
 
@@ -101,51 +108,7 @@ public class MakeSquareRed : MonoBehaviour
             CountTiles(0, PopulateField.instance.gridHeight - (1 + n), 1, -1, Color.cyan, playerTag);
         }
     }
-    private bool CheckIfWin2(string playerTag)
-    {
-        //string playerTag = this.gameObject.tag;
-        int x = 0;
-        int y = 0;
-        bool aiWins = false;
 
-        // Horizontal
-        for(int i = 0; i < PopulateField.instance.gridHeight; i++)
-        {
-            aiWins = CountTiles2(x, i, 1, 0, Color.yellow, playerTag);
-        }
-
-        // Vertical
-        for (int j = 0; j < PopulateField.instance.gridHeight; j++)
-        {
-            aiWins = CountTiles2(j, y, 0, 1, Color.green, playerTag);
-        }
-
-        // Diagonal top-left to bottom-right
-        for (int k = 0; k < PopulateField.instance.gridHeight; k++)
-        {
-            aiWins = CountTiles2(k, y, 1, 1, Color.blue, playerTag);
-        }
-
-        // Diagonal top-left to bottom-right
-        for (int l = 0; l < PopulateField.instance.gridHeight; l++)
-        {
-            aiWins = CountTiles2(0, l, 1, 1, Color.blue, playerTag);
-        }
-
-        // Diagonal bottom-left to top-right
-        for (int m = 0; m < PopulateField.instance.gridHeight; m++)
-        {
-            aiWins = CountTiles2(m, PopulateField.instance.gridHeight - 1, 1, -1, Color.cyan, playerTag);
-        }
-        
-        // Diagonal bottom-left to top-right
-        for (int n = 0; n < PopulateField.instance.gridHeight; n++)
-        {
-            aiWins = CountTiles2(0, PopulateField.instance.gridHeight - (1 + n), 1, -1, Color.cyan, playerTag);
-        }
-
-        return aiWins;
-    }
 
     private void CountTiles(int startX, int startY, int dx, int dy, Color color, string playerTag)
     {
@@ -198,13 +161,44 @@ public class MakeSquareRed : MonoBehaviour
         tilesInRow.Clear();
         return;
     }
+
+
+    // =================== AI ========================
+
+
+    private void AIPlay()
+    {
+        isTryingToPlay = false;
+        isTryingToBlockOponent = false;
+
+        // Check if AI can block Player1 from winning
+        if (CheckIfOpponentCanWin("Player1")) 
+        {
+            BlockOponent(startTileName, endTileName);
+            return;
+        }
+
+
+        //// Check if AI can win
+        //if (TryToCompleteWin("Player2")) return;
+
+
+
+        // Otherwise, play strategically
+        PlayStrategically();
+    }
+
+
+    // This goes through all rows, columns and diagonals and counts if the player wins
     private bool CountTiles2(int startX, int startY, int dx, int dy, Color color, string playerTag)
     {
-        int count = 0;
+        //int count = 0;
         int x = startX;
         int y = startY;
         start = new Vector3(0, 0, 0);
         end = new Vector3(0, 0, 0);
+        bool targetPlayerWins = false;
+        int tileIndex = 0;
 
         while (x >= 0 && x < PopulateField.instance.gridWidth && y >= 0 && y < PopulateField.instance.gridHeight)
         {
@@ -212,7 +206,7 @@ public class MakeSquareRed : MonoBehaviour
 
             tilesInRow.Add(temp);
 
-            count++;
+            //count++;
             x += dx;
             y += dy;
         }
@@ -223,59 +217,158 @@ public class MakeSquareRed : MonoBehaviour
         {
             if (tile.tag == playerTag)
             {
-                counter++;
-                if(counter == 1)
+                if(counter == 0)
                 {
                     start = tile.transform.position;
+                    startTileName = tile.name;
                 }
-                else if (counter > 1)
+                else if (counter > 0)
                 {
                     end = tile.transform.position;
+                    endTileName = tile.name;
                 }
 
-                if (counter == PopulateField.instance.winCondition)
+                if (counter == PopulateField.instance.winCondition-1)
                 {
-                    //Debug.Log("Player WON!");
-                    //PopulateField.instance.DrawLine(start, end);
-                    //GameManager.instance.EndGame(playerTag);
-                    return true;
+                    Debug.Log("PLAYER WINS!" + counter);
+                    targetPlayerWins = true;
                 }
-                return false;
+                counter++;
+                //return targetPlayerWins;
             }
-            else if (tile.tag != "Player")
+            //else if (targetPlayerWins)
+            //{
+            //    //tileIndex = tilesInRow.IndexOf(tile);
+            //    ////PlaceTileAsAI(tile);
+            //    ////Debug.Log("STOP HERE PLEASE!");
+            //    //break;
+            //    counter = 0;
+            //}
+            else if (tile.tag != playerTag)
             {
                 counter = 0;
             }
         }
+
+        //Debug.Log("Tile index is " + tileIndex);
         tilesInRow.Clear();
-        return false;
+        return targetPlayerWins;
     }
 
 
-    // =================== AI ========================
-
-
-    private void AIPlay()
+    private bool CheckIfWin2(string playerTag)
     {
-        //// Check if AI can win
-        //if (TryToCompleteWin("Player2")) return;
+        //string playerTag = this.gameObject.tag;
+        int x = 0;
+        int y = 0;
+        bool aiWins = false;
 
-        // Check if AI can block Player1 from winning
-        if (TryToBlockOpponent("Player1")) return;
+        // Horizontal
+        for (int i = 0; i < PopulateField.instance.gridHeight; i++)
+        {
+            aiWins = CountTiles2(x, i, 1, 0, Color.yellow, playerTag);
+            if (aiWins) return aiWins;
+        }
 
-        // Otherwise, play strategically
-        PlayStrategically();
+        // Vertical
+        for (int j = 0; j < PopulateField.instance.gridHeight; j++)
+        {
+            aiWins = CountTiles2(j, y, 0, 1, Color.green, playerTag);
+            if (aiWins) return aiWins;
+        }
+
+        // Diagonal top-left to bottom-right
+        for (int k = 0; k < PopulateField.instance.gridHeight; k++)
+        {
+            aiWins = CountTiles2(k, y, 1, 1, Color.blue, playerTag);
+            if (aiWins) return aiWins;
+        }
+
+        //Diagonal top-left to bottom-right
+        for (int l = 0; l < PopulateField.instance.gridHeight; l++)
+        {
+            aiWins = CountTiles2(0, l, 1, 1, Color.blue, playerTag);
+            if (aiWins) return aiWins;
+        }
+
+        // Diagonal bottom-left to top-right
+        for (int m = 0; m < PopulateField.instance.gridHeight; m++)
+        {
+            aiWins = CountTiles2(m, PopulateField.instance.gridHeight - 1, 1, -1, Color.cyan, playerTag);
+            if (aiWins) return aiWins;
+        }
+
+        // Diagonal bottom-left to top-right
+        for (int n = 0; n < PopulateField.instance.gridHeight; n++)
+        {
+            aiWins = CountTiles2(0, PopulateField.instance.gridHeight - (1 + n), 1, -1, Color.cyan, playerTag);
+            if (aiWins) return aiWins;
+        }
+
+        return aiWins;
     }
 
-    private bool TryToCompleteWin(string playerTag)
+
+    private void BlockOponent(string startTileName, string endTileName)
     {
-        return TryMakeStrategicMove(playerTag, PopulateField.instance.winCondition - 1);
+        // Do the magic of blocking to win
+        //int tileIndex = PopulateField.instance.gameField.
+        //for(int i = 0; i < PopulateField.instance.gameField.Length; i++)
+        //{
+        //    for(int j = 0; j < PopulateField.instance.gameField.Length; j++)
+        //    {
+
+        //    }
+        //}
+
+        //GameManager.instance.SwitchPlayer();
     }
 
-    private bool TryToBlockOpponent(string opponentTag)
+
+
+    
+
+    private void TryBlockOpponent(string opponentTag)
     {
-        return TryMakeStrategicMove(opponentTag, PopulateField.instance.winCondition - 1);
+        for (int x = 0; x < PopulateField.instance.gridWidth; x++)
+        {
+            for (int y = 0; y < PopulateField.instance.gridHeight; y++)
+            {
+                GameObject tile = PopulateField.instance.GameField[x, y];
+
+                // Skip tiles that are already taken
+                if (tile.tag == "Player1" || tile.tag == "Player2") continue;
+
+                // Temporarily tag the tile and check if it creates a win/block condition
+                string originalTag = tile.tag;
+                tile.tag = opponentTag;
+
+                bool playerWins = false;
+                bool aiWins = false;
+
+                if (opponentTag == "Player1")
+                {
+                    playerWins = CheckIfWin2(opponentTag);
+                }
+
+
+                if (playerWins)
+                {
+
+                    PlaceTileAsAI(tile);
+
+                }
+                else
+                {
+                    // Revert the tag after checking
+                    tile.tag = originalTag;
+
+                }
+
+            }
+        }
     }
+
 
     private bool TryMakeStrategicMove(string targetTag, int neededInRow)
     {
@@ -295,10 +388,12 @@ public class MakeSquareRed : MonoBehaviour
                 bool playerWins = false;
                 bool aiWins = false;
 
+                // Block oponent
                 if (targetTag == "Player1") 
                 { 
                     playerWins = CheckIfWin2(targetTag); 
                 }
+                // Make strategic move
                 else if (targetTag == "Player2" && GameManager.instance.IsMultiplayerGame)
                 {
                     aiWins = CheckIfWin2(targetTag);
@@ -314,8 +409,8 @@ public class MakeSquareRed : MonoBehaviour
                 }
                 else
                 {
-                // Revert the tag after checking
-                tile.tag = originalTag;
+                    // Revert the tag after checking
+                    tile.tag = originalTag;
 
                 }
 
@@ -327,67 +422,46 @@ public class MakeSquareRed : MonoBehaviour
 
     private void PlayStrategically()
     {
-        // Try to play the center if available
-        int center = PopulateField.instance.gridWidth / 2;
-        GameObject centerTile = PopulateField.instance.GameField[center, center];
-
-        if (centerTile.tag != "Player1" && centerTile.tag != "Player2")
+        if (GameManager.instance.currentPlayer == "O")
         {
-            PlaceTileAsAI(centerTile);
-            return;
-        }
+            // Try to play the center if available
+            int center = PopulateField.instance.gridWidth / 2;
+            GameObject centerTile = PopulateField.instance.GameField[center, center];
 
-        // Otherwise, play the first available tile
-        for (int x = 0; x < PopulateField.instance.gridWidth; x++)
-        {
-            for (int y = 0; y < PopulateField.instance.gridHeight; y++)
+            if (centerTile.tag != "Player1" && centerTile.tag != "Player2")
             {
-                GameObject tile = PopulateField.instance.GameField[x, y];
+                PlaceTileAsAI(centerTile);
+                return;
+            }
 
-                if (tile.tag != "Player1" && tile.tag != "Player2")
+            // Otherwise, play the first available tile
+            for (int x = 0; x < PopulateField.instance.gridWidth; x++)
+            {
+                for (int y = 0; y < PopulateField.instance.gridHeight; y++)
                 {
-                    PlaceTileAsAI(tile);
-                    return;
+                    GameObject tile = PopulateField.instance.GameField[x, y];
+
+                    if (tile.tag != "Player1" && tile.tag != "Player2")
+                    {
+                        PlaceTileAsAI(tile);
+                        return;
+                    }
                 }
             }
         }
     }
 
-    private bool CheckWinCondition(string playerTag, int startX, int startY, int neededInRow)
+    private bool CheckIfOpponentCanWin(string opponentTag)
     {
-        // Check horizontal, vertical, and diagonal directions
-        return CheckDirection(startX, startY, 1, 0, playerTag, neededInRow) || // Horizontal
-               CheckDirection(startX, startY, 0, 1, playerTag, neededInRow) || // Vertical
-               CheckDirection(startX, startY, 1, 1, playerTag, neededInRow) || // Diagonal TL-BR
-               CheckDirection(startX, startY, 1, -1, playerTag, neededInRow);  // Diagonal BL-TR
+
+
+
+
+
+        return TryMakeStrategicMove(opponentTag, PopulateField.instance.winCondition - 1);
     }
 
-    private bool CheckDirection(int startX, int startY, int dx, int dy, string playerTag, int neededInRow)
-    {
-        int count = 0;
 
-        for (int i = -neededInRow; i <= neededInRow; i++)
-        {
-            int x = startX + i * dx;
-            int y = startY + i * dy;
-
-            if (x >= 0 && x < PopulateField.instance.gridWidth && y >= 0 && y < PopulateField.instance.gridHeight)
-            {
-                GameObject tile = PopulateField.instance.GameField[x, y];
-                if (tile.tag == playerTag)
-                {
-                    count++;
-                    if (count >= neededInRow) return true;
-                }
-                else
-                {
-                    count = 0;
-                }
-            }
-        }
-
-        return false;
-    }
 
     private void PlaceTileAsAI(GameObject tile)
     {
@@ -398,8 +472,45 @@ public class MakeSquareRed : MonoBehaviour
     }
 
 
+    //private bool TryToCompleteWin(string playerTag)
+    //{
+    //    return TryMakeStrategicMove(playerTag, PopulateField.instance.winCondition - 1);
+    //}
 
 
+    //private bool CheckWinCondition(string playerTag, int startX, int startY, int neededInRow)
+    //{
+    //    // Check horizontal, vertical, and diagonal directions
+    //    return CheckDirection(startX, startY, 1, 0, playerTag, neededInRow) || // Horizontal
+    //           CheckDirection(startX, startY, 0, 1, playerTag, neededInRow) || // Vertical
+    //           CheckDirection(startX, startY, 1, 1, playerTag, neededInRow) || // Diagonal TL-BR
+    //           CheckDirection(startX, startY, 1, -1, playerTag, neededInRow);  // Diagonal BL-TR
+    //}
 
+    //private bool CheckDirection(int startX, int startY, int dx, int dy, string playerTag, int neededInRow)
+    //{
+    //    int count = 0;
 
+    //    for (int i = -neededInRow; i <= neededInRow; i++)
+    //    {
+    //        int x = startX + i * dx;
+    //        int y = startY + i * dy;
+
+    //        if (x >= 0 && x < PopulateField.instance.gridWidth && y >= 0 && y < PopulateField.instance.gridHeight)
+    //        {
+    //            GameObject tile = PopulateField.instance.GameField[x, y];
+    //            if (tile.tag == playerTag)
+    //            {
+    //                count++;
+    //                if (count >= neededInRow) return true;
+    //            }
+    //            else
+    //            {
+    //                count = 0;
+    //            }
+    //        }
+    //    }
+
+    //    return false;
+    //}
 }

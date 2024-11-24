@@ -10,6 +10,12 @@ public class GameManager : MonoBehaviour
     public int squareMatrixSize = 3; // Size of the grid (e.g., 3x3, 4x4, etc.)
     [SerializeField] private bool isMultiplayerGame;
 
+
+    public string PlayerX
+    {
+        get { return playerX; }
+    }
+
     public bool IsMultiplayerGame
     {
         get { return isMultiplayerGame; }
