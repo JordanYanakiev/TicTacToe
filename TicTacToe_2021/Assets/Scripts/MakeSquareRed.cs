@@ -64,6 +64,7 @@ public class MakeSquareRed : MonoBehaviour
             }
         }
 
+
     }
 
     private void CheckIfWin(string playerTag)
@@ -108,7 +109,6 @@ public class MakeSquareRed : MonoBehaviour
             CountTiles(0, PopulateField.instance.gridHeight - (1 + n), 1, -1, Color.cyan, playerTag);
         }
     }
-
 
     private void CountTiles(int startX, int startY, int dx, int dy, Color color, string playerTag)
     {
@@ -162,6 +162,7 @@ public class MakeSquareRed : MonoBehaviour
         return;
     }
 
+    
 
     // =================== AI ========================
 

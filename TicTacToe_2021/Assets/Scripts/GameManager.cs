@@ -9,7 +9,14 @@ public class GameManager : MonoBehaviour
     [SerializeField] private PopulateField populateField; // Reference to PopulateField script
     public int squareMatrixSize = 3; // Size of the grid (e.g., 3x3, 4x4, etc.)
     [SerializeField] private bool isMultiplayerGame;
+    [SerializeField] private bool isBlockedBoard;
 
+
+    public bool IsBlockedBoard
+    {
+        get { return isBlockedBoard; }
+        set { isBlockedBoard = value; }
+    }
 
     public string PlayerX
     {

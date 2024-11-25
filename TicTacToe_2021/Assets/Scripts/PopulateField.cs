@@ -26,8 +26,7 @@ public class PopulateField : MonoBehaviour
     [SerializeField] public Sprite player2Image;
     [SerializeField] private GameObject gameOverPanel;
     [SerializeField] private GameObject gameFieldPanel;
-
-
+    [SerializeField] private List<GameObject> tilesList = new List<GameObject>();
 
     public GameObject GameOverPanel
     {
@@ -35,13 +34,11 @@ public class PopulateField : MonoBehaviour
         set { gameOverPanel = value; }
     }
 
-
     public GameObject[,] GameField
     {
         get { return gameField; }
         set { gameField = value; }
     }
-
 
     public static PopulateField _instance;
     public static PopulateField instance
@@ -70,37 +67,55 @@ public class PopulateField : MonoBehaviour
         gameFieldHeight = rectTransform.rect.height;
         gameField = new GameObject[(int)gameFieldWidth, (int)gameFieldHeight];
         GenerateGrid();
+        StopAllCoroutines();
         StartCoroutine(RestartLevelOnDraw());
     }
 
+    private void GetAllTiles()
+    {
+        if(tilesList.Count >= gridWidth * gridWidth)
+        {
+            int counter = 0;
+            foreach (Transform child in gameFieldPanel.transform)
+            {
+                tilesList[counter] = child.gameObject;
+                counter++;
+            }
+        }
+        else
+        {
+            foreach (Transform child in gameFieldPanel.transform)
+            {
+                tilesList.Add(child.gameObject);
+            }
+        }
+    }
 
     private IEnumerator RestartLevelOnDraw()
     {
-        bool isHavingNoEmptySpots = false;
         int counter = 0;
+
+        GetAllTiles();
+
         while (true)
         {
-            for(int i = 0; i < gameField.Length; i++)
+            for (int i = 0; i < tilesList.Count; i++)
             {
-                for (int j = 0; j < gameField.Length; j++)
+                if (tilesList[i].tag != "Untagged")
                 {
-                    if (gameField[i,j].tag != "Untagged")
-                    {
-                        counter++;
-                    }
-
-                    if (counter == gameField.Length * gameField.Length)
-                    {
-                        RestartLevel();
-                    }
+                    counter++;
                 }
             }
+
+            if (counter == tilesList.Count)
+            {
+                gameOverPanel.SetActive(true);
+            }
+            
             counter = 0;
             yield return new WaitForSeconds(.0000001f);
         }
     }
-
-
 
     public void GenerateGrid()
     {
@@ -138,8 +153,6 @@ public class PopulateField : MonoBehaviour
         // Calculate the starting point to center the grid within the game field
         float startX = -((tileSize * 4) + (tileSize * gridMultiplyer));
         float startY = ((tileSize * 4) + (tileSize * gridMultiplyer));
-
-
 
         for (int x = 0; x < gridWidth; x++)
         {
@@ -181,15 +194,14 @@ public class PopulateField : MonoBehaviour
         return new Vector3(posX, posY, 0);
     }
 
-
-    public void HighlightWinningTiles(List<GameObject> winningTiles)
-    {
-        foreach (GameObject tile in winningTiles)
-        {
-            // Highlight the tile visually (e.g., change its color)
-            tile.GetComponent<SpriteRenderer>().color = Color.green;
-        }
-    }
+    //public void HighlightWinningTiles(List<GameObject> winningTiles)
+    //{
+    //    foreach (GameObject tile in winningTiles)
+    //    {
+    //        // Highlight the tile visually (e.g., change its color)
+    //        tile.GetComponent<SpriteRenderer>().color = Color.green;
+    //    }
+    //}
 
     public void DrawLine(Vector3 start, Vector3 end)
     {
@@ -198,7 +210,6 @@ public class PopulateField : MonoBehaviour
         lineRenderer.SetPosition(1, new Vector3(end.x, end.y, 85));
     }
     
-
     public void RestartLevel()
     {
         lineRenderer.positionCount = 0;
@@ -212,9 +223,20 @@ public class PopulateField : MonoBehaviour
 
         Start();
         GameManager.instance.currentPlayer = GameManager.instance.PlayerX;
-
+        GameManager.instance.IsBlockedBoard = false;
         gameOverPanel.SetActive(false);
+        ReloadCurrentScene();
     }
+
+    public void ReloadCurrentScene()
+    {
+        // Get the currently active scene
+        Scene currentScene = SceneManager.GetActiveScene();
+
+        // Reload the active scene
+        SceneManager.LoadScene(currentScene.name);
+    }
+
 }
 
 
